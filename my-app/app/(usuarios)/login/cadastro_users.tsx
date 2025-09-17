@@ -1,95 +1,163 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {router} from "expo-router"
 
-export default function Cadastro() {
-  const [nome, setNome] = useState("");
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
+
+export default function SignupScreen({ navigation }: { navigation?: any }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCadastro = () => {
-    if (!nome || !email || !senha) {
+  const handleSignup = () => {
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert("Erro", "Preencha todos os campos!");
       return;
     }
-    // Aqui você pode integrar com Firebase, API ou banco de dados
-    Alert.alert("Sucesso", `Usuário ${nome} cadastrado com sucesso!`);
-    
-    // Resetar campos após cadastro
-    setNome("");
-    setEmail("");
-    setSenha("");
+
+    if (password !== confirmPassword) {
+      Alert.alert("Erro", "As senhas não coincidem!");
+      return;
+    }
+
+    setLoading(true);
+
+    // Simulação de cadastro (substitua por sua API ou Firebase)
+    setTimeout(() => {
+      setLoading(false);
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      navigation?.navigate("Login");
+    }, 1000);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Cadastro de Usuário</Text>
+    <KeyboardAvoidingView
+      style={{
+        flex: 1,
+        backgroundColor: "#f0f6ff",
+        justifyContent: "center",
+        padding: 20,
+      }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={{ marginBottom: 30, alignItems: "center" }}>
+          <Text style={{ fontSize: 26, fontWeight: "bold", color: "#0b63a8" }}>
+            Criar Conta
+          </Text>
+          <Text style={{ marginTop: 8, color: "#4a6fa5" }}>
+            Preencha os dados para se cadastrar
+          </Text>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        value={nome}
-        onChangeText={setNome}
-      />
+        <View style={{ backgroundColor: "#fff", padding: 20, borderRadius: 12 }}>
+          <Text style={{ marginBottom: 6, fontWeight: "600" }}>Nome</Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            placeholder="Digite seu nome"
+            editable={!loading}
+            style={{
+              borderWidth: 1,
+              borderColor: "#d6e4f0",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+            }}
+          />
 
-      <TextInput
-        style={styles.input}
-        placeholder="E-mail"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
+          <Text style={{ marginBottom: 6, fontWeight: "600" }}>Email</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Digite seu email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!loading}
+            style={{
+              borderWidth: 1,
+              borderColor: "#d6e4f0",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+            }}
+          />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Senha"
-        secureTextEntry
-        value={senha}
-        onChangeText={setSenha}
-      />
+          <Text style={{ marginBottom: 6, fontWeight: "600" }}>Senha</Text>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Digite sua senha"
+            secureTextEntry
+            editable={!loading}
+            style={{
+              borderWidth: 1,
+              borderColor: "#d6e4f0",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 16,
+            }}
+          />
 
-      <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
-        <Text style={styles.textoBotao}>Cadastrar</Text>
-      </TouchableOpacity>
-    </View>
+          <Text style={{ marginBottom: 6, fontWeight: "600" }}>
+            Confirmar Senha
+          </Text>
+          <TextInput
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="Repita sua senha"
+            secureTextEntry
+            editable={!loading}
+            style={{
+              borderWidth: 1,
+              borderColor: "#d6e4f0",
+              borderRadius: 8,
+              padding: 12,
+              marginBottom: 20,
+            }}
+          />
+
+          <TouchableOpacity
+            onPress={handleSignup}
+            disabled={loading}
+            style={{
+              backgroundColor: "#0b63a8",
+              paddingVertical: 14,
+              borderRadius: 8,
+              alignItems: "center",
+            }}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>
+                Cadastrar
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ marginTop: 20, alignItems: "center" }}>
+          <Text>Já possui conta?</Text>
+          <TouchableOpacity onPress={() => router.push("(usuarios)/login")}>
+            <Text style={{ color: "#0b63a8", fontWeight: "700", marginTop: 4 }}>
+              Fazer Login
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    padding: 20,
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 30,
-    color: "#333",
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#ccc",
-  },
-  botao: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#4CAF50",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textoBotao: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-});

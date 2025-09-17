@@ -1,121 +1,112 @@
-// LoginScreen.tsx
-import React from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { TextInput, Button, Text, Provider as PaperProvider } from 'react-native-paper';
-import { useForm, Controller } from 'react-hook-form';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";
 
-type LoginFormData = {
-  email: string;
-  password: string;
-};
+export default function LoginScreen({ navigation }: { navigation?: any }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const LoginScreen = () => {
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>();
+  const handleLogin = () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha todos os campos!");
+      return;
+    }
 
-  const onSubmit = (data: LoginFormData) => {
-    // Aqui você pode fazer a chamada à API ou lógica de autenticação
-    Alert.alert('Login feito com sucesso', `Email: ${data.email}`);
+    setLoading(true);
+
+    // Simula chamada de API
+    setTimeout(() => {
+      setLoading(false);
+      if (email === "teste@email.com" && password === "123456") {
+        Alert.alert("Sucesso", "Login realizado!");
+        navigation?.navigate("Home"); // caso tenha tela Home
+      } else {
+        Alert.alert("Erro", "Email ou senha inválidos.");
+      }
+    }, 1000);
   };
 
   return (
-    <PaperProvider>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-      >
-        <View style={styles.inner}>
-          <Text style={styles.title}>Bem-vindo</Text>
+    <KeyboardAvoidingView
+      style={{
+        flex: 1,
+        backgroundColor: "#f0f6ff",
+        justifyContent: "center",
+        padding: 20,
+      }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <View style={{ marginBottom: 40, alignItems: "center" }}>
+        <Text style={{ fontSize: 26, fontWeight: "bold", color: "#0b63a8" }}>
+          Bem-vindo
+        </Text>
+        <Text style={{ marginTop: 8, color: "#4a6fa5" }}>
+          Faça login para continuar
+        </Text>
+      </View>
 
-          <Controller
-            control={control}
-            name="email"
-            rules={{
-              required: 'Email é obrigatório',
-              pattern: {
-                value: /^\S+@\S+$/i,
-                message: 'Email inválido',
-              },
-            }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Email"
-                mode="outlined"
-                value={value}
-                onChangeText={onChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                style={styles.input}
-                error={!!errors.email}
-              />
-            )}
-          />
-          {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
+      <View style={{ backgroundColor: "#fff", padding: 20, borderRadius: 12 }}>
+        <Text style={{ marginBottom: 6, fontWeight: "600" }}>Email</Text>
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Digite seu email"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          editable={!loading}
+          style={{
+            borderWidth: 1,
+            borderColor: "#d6e4f0",
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 16,
+          }}
+        />
 
-          <Controller
-            control={control}
-            name="password"
-            rules={{
-              required: 'Senha é obrigatória',
-              minLength: {
-                value: 6,
-                message: 'Senha deve ter no mínimo 6 caracteres',
-              },
-            }}
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Senha"
-                mode="outlined"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                style={styles.input}
-                error={!!errors.password}
-              />
-            )}
-          />
-          {errors.password && <Text style={styles.error}>{errors.password.message}</Text>}
+        <Text style={{ marginBottom: 6, fontWeight: "600" }}>Senha</Text>
+        <TextInput
+          value={password}
+          onChangeText={setPassword}
+          placeholder="Digite sua senha"
+          secureTextEntry
+          editable={!loading}
+          style={{
+            borderWidth: 1,
+            borderColor: "#d6e4f0",
+            borderRadius: 8,
+            padding: 12,
+            marginBottom: 20,
+          }}
+        />
 
-          <Button mode="contained" onPress={handleSubmit(onSubmit)} style={styles.button}>
-            Entrar
-          </Button>
-        </View>
-      </KeyboardAvoidingView>
-    </PaperProvider>
+        <TouchableOpacity
+          onPress={handleLogin}
+          disabled={loading}
+          style={{
+            backgroundColor: "#0b63a8",
+            paddingVertical: 14,
+            borderRadius: 8,
+            alignItems: "center",
+          }}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>
+              Entrar
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  inner: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  input: {
-    marginBottom: 12,
-  },
-  button: {
-    marginTop: 24,
-    paddingVertical: 6,
-  },
-  error: {
-    color: 'green',
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-});
-
-export default LoginScreen;
-
+}

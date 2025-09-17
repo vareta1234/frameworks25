@@ -1,9 +1,8 @@
 // screens/IndexScreen.tsx
 import React from "react";
-import {router} from "expo-router"
 import { View, Text, TouchableOpacity } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../../App";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Index">;
 
@@ -30,7 +29,7 @@ export default function IndexScreen({ navigation }: Props) {
       </Text>
 
       <TouchableOpacity
-        onPress={() => router.push("(usuarios)/login")}
+        onPress={() => navigation.navigate("Login")}
         style={{
           backgroundColor: "#0b63a8",
           paddingVertical: 14,
@@ -45,7 +44,7 @@ export default function IndexScreen({ navigation }: Props) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => router.push("(usuarios)/login/cadastro_users")}
+        onPress={() => navigation.navigate("Signup")}
         style={{
           backgroundColor: "#4caf50",
           paddingVertical: 14,
