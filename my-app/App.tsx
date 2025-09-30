@@ -42,7 +42,10 @@ export default function App() {
           component={HomeScreen}
           options={{ title: "Principal" }}
         />
+       
+
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+

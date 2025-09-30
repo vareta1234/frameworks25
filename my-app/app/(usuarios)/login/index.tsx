@@ -1,3 +1,4 @@
+import {router} from "expo-router"
 import React, { useState } from "react";
 import {
   View,
@@ -28,7 +29,7 @@ export default function LoginScreen({ navigation }: { navigation?: any }) {
       setLoading(false);
       if (email === "teste@email.com" && password === "123456") {
         Alert.alert("Sucesso", "Login realizado!");
-        navigation?.navigate("Home"); // caso tenha tela Home
+        router.push(("/itens/[3]")); // caso tenha tela Home
       } else {
         Alert.alert("Erro", "Email ou senha inválidos.");
       }

@@ -37,7 +37,7 @@ export default function SignupScreen({ navigation }: { navigation?: any }) {
     setTimeout(() => {
       setLoading(false);
       Alert.alert("Sucesso", "Conta criada com sucesso!");
-      navigation?.navigate("Login");
+      Alert.alert("Sua chave token tanbém foi criada com sucesso!")
     }, 1000);
   };
 
@@ -150,7 +150,7 @@ export default function SignupScreen({ navigation }: { navigation?: any }) {
 
         <View style={{ marginTop: 20, alignItems: "center" }}>
           <Text>Já possui conta?</Text>
-          <TouchableOpacity onPress={() => router.push("(usuarios)/login")}>
+          <TouchableOpacity onPress={() => router.push(("/(usuarios)/login"))}>
             <Text style={{ color: "#0b63a8", fontWeight: "700", marginTop: 4 }}>
               Fazer Login
             </Text>
