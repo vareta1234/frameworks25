@@ -1,43 +1,51 @@
 // screens/Jogos.tsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../App";
 import { router } from "expo-router";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+const axios = require('axios');
 
-export default function Jogos({ navigation }: Props) {
-  const jogos = [
-    {
-      id: "1",
-      nome: "Eternal Quest",
-      descricao: "RPG de mundo aberto com gráficos incríveis.",
-      imagem:
-        "https://placehold.co/300x180/0b63a8/fff?text=Eternal+Quest",
-    },
-    {
-      id: "2",
-      nome: "CyberRacer 2077",
-      descricao: "Corridas futuristas em uma cidade cyberpunk.",
-      imagem:
-        "https://placehold.co/300x180/ff5722/fff?text=CyberRacer+2077",
-    },
-    {
-      id: "3",
-      nome: "Battle of Realms",
-      descricao: "Estratégia em tempo real com batalhas épicas.",
-      imagem:
-        "https://placehold.co/300x180/4caf50/fff?text=Battle+of+Realms",
-    },
-    {
-      id: "4",
-      nome: "Sky Legends",
-      descricao: "Simulador de combate aéreo multiplayer.",
-      imagem:
-        "https://placehold.co/300x180/673ab7/fff?text=Sky+Legends",
-    },
-  ];
+interface Jogo {
+  id: number;
+  nome: string;
+  descricao: string;
+  imagem: string;
+}
+
+export default function Jogos() {
+  const [jogos, setJogos] = useState<Jogo[]>([])
+
+  
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function getJogos() {
+      try {
+        const response = await axios.get('http://localhost:3000/jogos');
+        if (!isMounted) return;
+        
+        const dados = response.data;
+        if (!Array.isArray(dados)) {
+          console.error('Resposta inválida: dados não são um array');
+          return;
+        }
+
+        setJogos(dados);
+      } catch (error) {
+        if (!isMounted) return;
+        console.error('Erro ao buscar jogos:', error);
+        setJogos([]); // Reset para array vazio em caso de erro
+      }
+    }
+
+    getJogos();
+
+    // Cleanup function para evitar atualização em componente desmontado
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <ScrollView
@@ -90,7 +98,7 @@ export default function Jogos({ navigation }: Props) {
                 borderRadius: 8,
                 alignItems: "center",
               }}
-              onPress={() => router.navigate({pathname:'/itens/[id]',params:{id:jogo.id,nome:jogo.nome,descricao:jogo.descricao,imagem:jogo.imagem}})}
+              onPress={() => router.push({ pathname: "/jogos/[id]", params: { id: jogo.id }})}
             >
               <Text style={{ color: "#fff", fontWeight: "700" }}>
                 Ver Detalhes
