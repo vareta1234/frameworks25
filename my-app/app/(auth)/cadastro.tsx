@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import {router} from "expo-router"
+import { router } from "expo-router";
+import { saveToken } from "../../api";
 
 import {
   View,
@@ -32,13 +33,24 @@ export default function SignupScreen({ navigation }: { navigation?: any }) {
     }
 
     setLoading(true);
-
-    // Simulação de cadastro (substitua por sua API ou Firebase)
-    setTimeout(() => {
-      setLoading(false);
-      Alert.alert("Sucesso", "Conta criada com sucesso!");
-      Alert.alert("Sua chave token tanbém foi criada com sucesso!")
-    }, 1000);
+    fetch('http://10.0.2.2:4000/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    })
+      .then(async (r) => {
+        const json = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(json.message || 'Erro no cadastro');
+        // backend agora retorna { auth, user }
+        if (json.auth) await saveToken(json.auth);
+        setLoading(false);
+        Alert.alert('Sucesso', 'Conta criada com sucesso!');
+        router.push('/jogos');
+      })
+      .catch((e) => {
+        setLoading(false);
+        Alert.alert('Erro', e.message || 'Erro no cadastro');
+      });
   };
 
   return (
@@ -150,7 +162,7 @@ export default function SignupScreen({ navigation }: { navigation?: any }) {
 
         <View style={{ marginTop: 20, alignItems: "center" }}>
           <Text>Já possui conta?</Text>
-          <TouchableOpacity onPress={() => router.push(("/(usuarios)/login"))}>
+          <TouchableOpacity onPress={() => router.push(("/(auth)/login"))}>
             <Text style={{ color: "#0b63a8", fontWeight: "700", marginTop: 4 }}>
               Fazer Login
             </Text>

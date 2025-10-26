@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const cors = require('cors');
 
 const app = express();
@@ -11,30 +11,38 @@ app.use(cors());
 
 // "Banco" simples em memória — substitua por DB real em produção
 const users = []; // cada item: { id, name, email, passwordHash }
+// armazenamento simples de tokens de autenticação em memória
+const authTokens = new Map(); // token -> { id, email, name, exp }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret';
 const PORT = process.env.PORT || 4000;
 
-function generateToken(user) {
-  // não inclua senhas ou dados sensíveis no payload
-  return jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '7d' });
+function generateAuthToken(user) {
+  // gera um token randômico e o armazena em memória com expiração
+  const token = crypto.randomBytes(32).toString('hex');
+  const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 dias
+  authTokens.set(token, { id: user.id, email: user.email, name: user.name, exp: expiresAt });
+  return token;
 }
 
 function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+  const authHeader = req.headers.authorization || req.headers['x-auth-token'];
   if (!authHeader) return res.status(401).json({ message: 'Token ausente' });
 
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') return res.status(401).json({ message: 'Token inválido' });
-
-  const token = parts[1];
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: 'Token inválido ou expirado' });
+  // suporta formatos: 'Auth <token>' ou 'Bearer <token>' ou token direto no x-auth-token
+  let token = authHeader;
+  if (typeof authHeader === 'string' && authHeader.split(' ').length === 2) {
+    token = authHeader.split(' ')[1];
   }
+
+  const session = authTokens.get(token);
+  if (!session) return res.status(401).json({ message: 'Token inválido' });
+  if (session.exp && session.exp < Date.now()) {
+    authTokens.delete(token);
+    return res.status(401).json({ message: 'Token expirado' });
+  }
+
+  req.user = { id: session.id, email: session.email, name: session.name };
+  next();
 }
 
 /** Signup */
@@ -52,8 +60,8 @@ app.post('/api/signup', async (req, res) => {
     const user = { id, name, email: email.toLowerCase(), passwordHash };
     users.push(user);
 
-    const token = generateToken(user);
-    return res.status(201).json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    const auth = generateAuthToken(user);
+    return res.status(201).json({ auth, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Erro no servidor' });
@@ -72,8 +80,8 @@ app.post('/api/login', async (req, res) => {
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) return res.status(401).json({ message: 'Email ou senha inválidos' });
 
-    const token = generateToken(user);
-    return res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+    const auth = generateAuthToken(user);
+    return res.json({ auth, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Erro no servidor' });

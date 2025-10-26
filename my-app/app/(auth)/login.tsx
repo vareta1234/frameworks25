@@ -1,5 +1,6 @@
-import {router} from "expo-router"
+import { router } from "expo-router";
 import React, { useState } from "react";
+import { saveToken } from "../../api";
 import {
   View,
   Text,
@@ -23,17 +24,23 @@ export default function LoginScreen({ navigation }: { navigation?: any }) {
     }
 
     setLoading(true);
-
-    // Simula chamada de API
-    setTimeout(() => {
-      setLoading(false);
-      if (email === "teste@email.com" && password === "123456") {
-        Alert.alert("Sucesso", "Login realizado!");
-        router.push(("/jogos")); // caso tenha tela Home
-      } else {
-        Alert.alert("Erro", "Email ou senha inválidos.");
-      }
-    }, 1000);
+    fetch('http://10.0.2.2:4000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+      .then(async (r) => {
+        const json = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(json.message || 'Erro no login');
+        if (json.auth) await saveToken(json.auth);
+        setLoading(false);
+        Alert.alert('Sucesso', 'Login realizado!');
+        router.push('/jogos');
+      })
+      .catch((e) => {
+        setLoading(false);
+        Alert.alert('Erro', e.message || 'Email ou senha inválidos.');
+      });
   };
 
   return (

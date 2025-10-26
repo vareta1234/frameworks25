@@ -19,6 +19,7 @@ export default function JogoDetalhes() {
   const [jogo, setJogo] = useState<Jogo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showFullDesc, setShowFullDesc] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -111,15 +112,29 @@ export default function JogoDetalhes() {
         {jogo.nome}
       </Text>
 
+      {/* Pequeno resumo do jogo com opção de ver mais */}
       <Text
         style={{
           fontSize: 16,
           color: "#444",
-          marginBottom: 20,
+          marginBottom: 8,
         }}
       >
-        {jogo.descricao}
+        {jogo.descricao
+          ? showFullDesc
+            ? jogo.descricao
+            : jogo.descricao.length > 140
+            ? `${jogo.descricao.slice(0, 140)}...`
+            : jogo.descricao
+          : "Sem descrição disponível."}
       </Text>
+      {jogo.descricao && jogo.descricao.length > 140 && (
+        <TouchableOpacity onPress={() => setShowFullDesc((s) => !s)} style={{ marginBottom: 12 }}>
+          <Text style={{ color: "#0b63a8", fontWeight: "600" }}>
+            {showFullDesc ? "Ver menos" : "Ver mais"}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <Text
         style={{
