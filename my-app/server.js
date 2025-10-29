@@ -130,6 +130,34 @@ app.get('/api/me', authMiddleware, (req, res) => {
   return res.json({ user: req.user });
 });
 
+/** Listagem de jogos (lê do db.json) */
+app.get('/api/jogos', async (req, res) => {
+  try {
+    const db = await readDb();
+    const jogos = db.jogos || [];
+    return res.json({ jogos });
+  } catch (err) {
+    console.error('erro ao ler jogos de db.json', err);
+    return res.status(500).json({ message: 'Erro ao ler jogos' });
+  }
+});
+
+/** Obter jogo por id */
+app.get('/api/jogos/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const db = await readDb();
+    const jogos = db.jogos || [];
+    // aceita id como string ou número
+    const jogo = jogos.find(j => String(j.id) === String(id));
+    if (!jogo) return res.status(404).json({ message: 'Jogo não encontrado' });
+    return res.json({ jogo });
+  } catch (err) {
+    console.error('erro ao ler jogo de db.json', err);
+    return res.status(500).json({ message: 'Erro ao ler jogo' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Auth server rodando em http://localhost:${PORT}`);
 });
