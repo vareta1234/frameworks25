@@ -4,17 +4,42 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const cors = require('cors');
+const fs = require('fs').promises;
+const path = require('path');
+
+const DB_PATH = path.join(__dirname, 'db.json');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// "Banco" simples em memória — substitua por DB real em produção
-const users = []; // cada item: { id, name, email, passwordHash }
+// "Banco" simples em memória — inicializado a partir de db.json
+let users = []; // cada item: { id, name, email, passwordHash }
 // armazenamento simples de tokens de autenticação em memória
 const authTokens = new Map(); // token -> { id, email, name, exp }
 
 const PORT = process.env.PORT || 4000;
+
+async function readDb() {
+  try {
+    const raw = await fs.readFile(DB_PATH, 'utf8');
+    const obj = JSON.parse(raw);
+    return obj;
+  } catch (err) {
+    // se não existir ou estiver inválido, retorna estrutura padrão
+    return { jogos: [], usuarios: [] };
+  }
+}
+
+async function writeDb(dbObj) {
+  const tmp = JSON.stringify(dbObj, null, 2);
+  await fs.writeFile(DB_PATH, tmp, 'utf8');
+}
+
+// inicializa users a partir do arquivo (não bloqueante)
+readDb().then(db => {
+  users = db.usuarios || [];
+}).catch(err => console.error('erro ao ler db.json', err));
 
 function generateAuthToken(user) {
   // gera um token randômico e o armazena em memória com expiração
@@ -56,9 +81,20 @@ app.post('/api/signup', async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
-    const id = users.length + 1;
+    const id = (crypto.randomUUID && crypto.randomUUID()) || (users.length + 1).toString();
     const user = { id, name, email: email.toLowerCase(), passwordHash };
     users.push(user);
+
+    // persiste no arquivo
+    try {
+      const db = await readDb();
+      db.usuarios = users;
+      await writeDb(db);
+    } catch (err) {
+      console.error('falha ao persistir usuário em db.json', err);
+      // não falha a resposta ao cliente por causa do problema de gravação,
+      // mas registra o erro no servidor
+    }
 
     const auth = generateAuthToken(user);
     return res.status(201).json({ auth, user: { id: user.id, name: user.name, email: user.email } });
