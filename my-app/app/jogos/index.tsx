@@ -1,7 +1,7 @@
 // screens/Jogos.tsx
-import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const axios = require('axios');
 
@@ -22,10 +22,10 @@ export default function Jogos() {
 
     async function getJogos() {
       try {
-        const response = await axios.get('http://localhost:3000/jogos');
+        const response = await axios.get('http://localhost:4000/api/jogos');
         if (!isMounted) return;
         
-        const dados = response.data;
+        const dados = response.data.jogos;
         if (!Array.isArray(dados)) {
           console.error('Resposta inválida: dados não são um array');
           return;

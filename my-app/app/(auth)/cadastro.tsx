@@ -33,7 +33,7 @@ export default function SignupScreen({ navigation }: { navigation?: any }) {
     }
 
     setLoading(true);
-    fetch('http://10.0.2.2:4000/api/signup', {
+    fetch('http://localhost:4000/api/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),

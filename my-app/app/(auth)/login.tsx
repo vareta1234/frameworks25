@@ -24,7 +24,7 @@ export default function LoginScreen({ navigation }: { navigation?: any }) {
     }
 
     setLoading(true);
-    fetch('http://10.0.2.2:4000/api/login', {
+    fetch('http://localhost:4000/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

@@ -1,9 +1,8 @@
 // screens/JogoDetalhes.tsx
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { router, useLocalSearchParams } from "expo-router";
 import axios from 'axios';
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface Jogo {
   id: number;
@@ -27,12 +26,12 @@ export default function JogoDetalhes() {
     async function getJogo() {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/jogos/${id}`);
+        const response = await axios.get(`http://localhost:4000/api/jogos/${id}`);
         
         if (!isMounted) return;
         
         if (response.data) {
-          setJogo(response.data);
+          setJogo(response.data.jogo);
         } else {
           setError('Jogo não encontrado');
         }
