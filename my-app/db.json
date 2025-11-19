@@ -31,6 +31,18 @@
       "name": "Teste",
       "email": "teste@example.com",
       "passwordHash": "$2b$10$xO0JfDBa3rGdj5hWboodtuAiu6oTkQpcqr1TfYcyHV15KoQlz3dO2"
+    },
+    {
+      "id": "0eca8f96-78c6-4755-a283-81f723a4ac00",
+      "name": "teste",
+      "email": "teste@email.com",
+      "passwordHash": "$2b$10$xf7lnOEmEPnPM52luEMs5OWiPPzfbDyn.shXTJ5gnuLyX7nfraOQu"
+    },
+    {
+      "id": "63ac640a-d03d-4e98-b571-7544692d31f7",
+      "name": "amanda",
+      "email": "amanda@email.com",
+      "passwordHash": "$2b$10$zuURoYfvEMCWZUYJExmjQ.PuyW5IGRxmMlwADj1YYuSrY5mvyzwL."
     }
   ]
 }
